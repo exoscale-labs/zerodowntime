@@ -1,0 +1,7 @@
+spring:
+  jpa:
+    hibernate.ddl-auto: validate
+    open-in-view: false
+info:
+  app:
+    version: @project.version@

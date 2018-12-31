@@ -1,0 +1,51 @@
+body {
+    font-family: 'DejaVu Sans', Arial, Helvetica, sans-serif;
+}
+
+table {
+    border: 1px solid darkslateblue;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+td, th {
+    border: 1px solid darkslateblue;
+    padding: 4px;
+}
+
+th {
+    font-style: italic;
+    font-weight: normal;
+}
+
+form {
+    width: 80%;
+    margin: 0 auto;
+}
+
+input[type="text"] {
+    font-family: 'DejaVu Sans', Arial, Helvetica, sans-serif;
+    font-size: 16px;
+    padding: 2px;
+    margin: 2px;
+    border: 1px solid darkslateblue;
+}
+
+label, input {
+    display: inline-block;
+}
+
+label {
+    width: 30%;
+    text-align: right;
+}
+
+label + input {
+    width: 30%;
+    margin: 0 30% 0 4%;
+}
+
+input[type="submit"] {
+    position: relative;
+    left: 250px;
+}
