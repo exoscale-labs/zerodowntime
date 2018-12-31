@@ -1,0 +1,53 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: zerodowntime
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: zerodowntime
+  name: app-service
+spec:
+  selector:
+    role: app
+  ports:
+  - port: 8080
+    nodePort: 30002
+  type: NodePort
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: application
+  namespace: zerodowntime
+spec:
+  replicas: 3
+  minReadySeconds: 10
+  selector:
+    matchLabels:
+      role: app
+  strategy:
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        role: app
+    spec:
+      containers:
+      - name: spring-boot-app
+        image: zerodowntime:1.0
+        imagePullPolicy: Never
+        readinessProbe:
+          periodSeconds: 2
+          httpGet:
+            path: /actuator/health
+            port: 8080
+        env:
+        - name: spring.datasource.url
+          value: jdbc:h2:tcp://db-service:1521/~/zerodowntime
+        ports:
+        - containerPort: 8080

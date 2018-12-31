@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: zerodowntime
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: zerodowntime
+  name: db-service
+spec:
+  selector:
+    role: db
+  ports:
+    - name: tcp
+      protocol: TCP
+      port: 1521
+      targetPort: 1521
+    - name: http
+      port: 81
+      nodePort: 30003
+  type: NodePort
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: database
+  namespace: zerodowntime
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      role: db
+  template:
+    metadata:
+      labels:
+        role: db
+    spec:
+      containers:
+        - name: h2-db
+          image: h2:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 1521
+            - containerPort: 81
