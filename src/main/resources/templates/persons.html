@@ -24,10 +24,10 @@
     <!--/*@thymesVar id="persons" type="kotlin.collections.List"*/-->
     <tr th:each="person : ${persons}">
         <td th:text="${person.name}">Ally Mc Beal</td>
-        <td th:text="${person.addressLine1}">Somewhere</td>
-        <td th:text="${person.addressLine2}">Over the Rainbow</td>
-        <td th:text="${person.city}">New York City</td>
-        <td th:text="${person.zipCode}">12345</td>
+        <td th:text="${person.address.addressLine1}">Somewhere</td>
+        <td th:text="${person.address.addressLine2}">Over the Rainbow</td>
+        <td th:text="${person.address.city}">New York City</td>
+        <td th:text="${person.address.zipCode}">12345</td>
     </tr>
     </tbody>
 </table>
@@ -38,16 +38,16 @@
         Name: <input type="text" th:field="*{name}" />
     </label><br>
     <label>
-        Address Line 1: <input type="text" th:field="*{addressLine1}" />
+        Address Line 1: <input type="text" th:field="*{address.addressLine1}" />
     </label><br>
     <label>
-        Address Line 2: <input type="text" th:field="*{addressLine2}" />
+        Address Line 2: <input type="text" th:field="*{address.addressLine2}" />
     </label><br>
     <label>
-        City: <input type="text" th:field="*{city}" />
+        City: <input type="text" th:field="*{address.city}" />
     </label><br>
     <label>
-        Zip: <input type="text" th:field="*{zipCode}" />
+        Zip: <input type="text" th:field="*{address.zipCode}" />
     </label><br>
     <input type="submit" value="Create" />
 </form>

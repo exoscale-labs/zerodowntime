@@ -1,53 +1,58 @@
 package com.exoscale.boot.zerodowntime
 
-import javax.persistence.*
-import javax.persistence.GenerationType.IDENTITY
-import org.springframework.stereotype.Component
 import org.hibernate.event.service.spi.EventListenerRegistry
 import org.hibernate.event.spi.*
 import org.hibernate.internal.SessionFactoryImpl
-import org.hibernate.persister.entity.EntityPersister
+import org.springframework.stereotype.Component
+import javax.persistence.*
+import javax.persistence.GenerationType.IDENTITY
 
 @Entity
 class Person(@Id @GeneratedValue(strategy = IDENTITY) var id: Long = -1,
-             val name: String = "",
-             val addressLine1: String = "",
-             val addressLine2: String? = null,
-             val city: String = "",
-             val zipCode: String = "")
+             val name: String = "") {
 
-@Entity
-class Address(@Id @GeneratedValue(strategy = IDENTITY) var id: Long = -1,
-              val addressLine1: String,
-              val addressLine2: String? = null,
-              val city: String,
-              val zipCode: String,
-              var personId: Long? = null)
-
-val Person.address: Address
-    get() = Address(addressLine1 = addressLine1,
-        addressLine2 = addressLine2,
-        city = city,
-        zipCode = zipCode,
-        personId = id)
-
-@Component
-class WriteAddressListener(emf: EntityManagerFactory) : PostInsertEventListener {
-
-    private val sessionFactory = emf.unwrap(SessionFactoryImpl::class.java)
+    @OneToOne(mappedBy = "person", cascade = [CascadeType.ALL])
+    @JoinColumn(name = "id")
+    val address: Address = Address()
 
     init {
+        address.person = this
+    }
+
+    internal var addressLine1: String? = null
+    internal var addressLine2: String? = null
+    internal var city: String? = null
+    internal var zipCode: String? = null
+}
+
+@Entity
+class Address(@Id @GeneratedValue(strategy = IDENTITY) var id: Long? = null,
+              var addressLine1: String = "",
+              var addressLine2: String? = null,
+              var city: String = "",
+              var zipCode: String = "") {
+    @OneToOne
+    @JoinColumn(name = "person_id")
+    lateinit var person: Person
+}
+
+@Component
+class WriteAddressListener(emf: EntityManagerFactory) : PreInsertEventListener {
+
+    init {
+        val sessionFactory = emf.unwrap(SessionFactoryImpl::class.java)
         val registry = sessionFactory.serviceRegistry.getService(EventListenerRegistry::class.java)
-        registry.getEventListenerGroup(EventType.POST_INSERT).appendListener(this)
+        registry.getEventListenerGroup(EventType.PRE_INSERT).appendListener(this)
     }
 
-    override fun onPostInsert(event: PostInsertEvent) {
+    override fun onPreInsert(event: PreInsertEvent): Boolean {
         val entity = event.entity
-        if (entity is Person) {
-            val session = sessionFactory.openSession()
-            session.save(entity.address)
+        if (entity is Address) {
+            entity.person.addressLine1 = entity.addressLine1
+            entity.person.addressLine2 = entity.addressLine2
+            entity.person.city = entity.city
+            entity.person.zipCode = entity.zipCode
         }
+        return false
     }
-
-    override fun requiresPostCommitHanding(persister: EntityPersister) = false
 }
